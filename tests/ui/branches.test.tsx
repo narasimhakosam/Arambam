@@ -272,3 +272,25 @@ describe('library fallbacks', () => {
     expect(result.current.state).toEqual({ status: 'idle' });
   });
 });
+
+describe('sidebar collapse and mobile interactions', () => {
+  it('toggles collapse, mobile drawer, and opens progress panel', async () => {
+    const { user } = renderWithPlan();
+    const collapseBtn = screen.getByRole('button', { name: 'Collapse sidebar' });
+    await user.click(collapseBtn);
+    expect(screen.getByRole('button', { name: 'Expand sidebar' })).toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: 'Expand sidebar' }));
+    expect(screen.getByRole('button', { name: 'Collapse sidebar' })).toBeInTheDocument();
+
+    const progressBtn = screen.getByRole('button', { name: 'View checklist drawer →' });
+    await user.click(progressBtn);
+    expect(screen.getByRole('heading', { name: 'Plan progress' })).toBeInTheDocument();
+
+    const mobileToggle = screen.getByRole('button', { name: 'Toggle navigation sidebar' });
+    await user.click(mobileToggle);
+    const closeBtn = screen.getByRole('button', { name: 'Close sidebar' });
+    expect(closeBtn).toBeInTheDocument();
+    await user.click(closeBtn);
+    expect(screen.queryByRole('button', { name: 'Close sidebar' })).not.toBeInTheDocument();
+  });
+});
