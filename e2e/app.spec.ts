@@ -23,6 +23,16 @@ async function mockApi(page: Page) {
   );
 }
 
+/** On mobile the tabs live inside a drawer; open it before clicking a tab. */
+async function ensureSidebarOpen(page: Page) {
+  const hamburger = page.getByRole('button', { name: 'Toggle navigation sidebar' });
+  if (await hamburger.isVisible()) {
+    await hamburger.click();
+    // Wait for a tab to become interactive before returning.
+    await page.getByRole('tab', { name: 'Budget' }).waitFor({ state: 'visible' });
+  }
+}
+
 async function createPlan(page: Page) {
   await page.goto('/');
   await page.getByLabel('Event description').fill('Shaadi in Pune, 200 guests, 8 lakh, Feb 2030');
@@ -87,6 +97,7 @@ test('runs under the production CSP with no console errors or CSP violations', a
   expect(response?.headers()['content-security-policy']).toContain("style-src 'self';");
   await createPlan(page);
   for (const tab of ['Budget', 'Timeline', 'Vendors', 'Plan setup']) {
+    await ensureSidebarOpen(page);
     await page.getByRole('tab', { name: tab }).click();
   }
   await page.getByRole('button', { name: /Switch to (dark|light) theme/ }).click();
@@ -96,6 +107,7 @@ test('runs under the production CSP with no console errors or CSP violations', a
 test('no horizontal scrolling on any tab', async ({ page }) => {
   await createPlan(page);
   for (const tab of ['Plan setup', 'Budget', 'Timeline', 'Vendors']) {
+    await ensureSidebarOpen(page);
     await page.getByRole('tab', { name: tab }).click();
     const overflow = await page.evaluate(
       () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
@@ -114,6 +126,7 @@ for (const scheme of ['light', 'dark'] as const) {
     await expectNoAxeViolations(page);
     await createPlan(page);
     for (const tab of ['Budget', 'Timeline', 'Vendors', 'Plan setup']) {
+      await ensureSidebarOpen(page);
       await page.getByRole('tab', { name: tab }).click();
       await page.waitForTimeout(350);
       await expectNoAxeViolations(page);

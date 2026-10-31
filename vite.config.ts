@@ -23,7 +23,7 @@ export default defineConfig({
     environment: 'jsdom',
     setupFiles: ['./vitest.setup.ts'],
     // UI tests with axe are slow under coverage instrumentation; give them room on CI runners.
-    testTimeout: 20_000,
+    testTimeout: 45_000,
     include: ['tests/**/*.test.{ts,tsx}'],
     coverage: {
       provider: 'v8',

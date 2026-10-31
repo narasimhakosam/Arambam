@@ -107,7 +107,6 @@ export function Sidebar({
                   role="tab"
                   type="button"
                   id={`tab-${t.id}`}
-                  aria-label={t.label}
                   aria-selected={isSelected}
                   aria-controls={`panel-${t.id}`}
                   tabIndex={isSelected ? 0 : -1}
